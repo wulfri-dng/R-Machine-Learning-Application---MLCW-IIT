@@ -7,15 +7,29 @@ vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R
 vehicle_list_inputs = vehicle_list[, -1]
 vehicle_list_inputs = vehicle_list_inputs[, -19]
 
-for(i in colnames(vehicle_list_inputs)){
-  outliers = boxplot.stats(vehicle_list_inputs[[i]])$out
+# Calculate outliers and remove them automatically
+while(TRUE) {
+  outliers_found = FALSE
   
-  if(length(outliers) != 0) {
-    out_row = which(vehicle_list_inputs[[i]] %in% c(outliers))
-
-    print(vehicle_list_inputs[out_row, ])
+  for(i in colnames(vehicle_list_inputs)){
+    outliers = boxplot.stats(vehicle_list_inputs[[i]])$out
+    
+    if(length(outliers) != 0) {
+      outliers_found = TRUE
+      
+      for(j in 1:length(outliers)) {
+        vehicle_list_inputs = subset(vehicle_list_inputs, vehicle_list_inputs[[i]] != outliers[j])
+      }
+    }
+  }
+  
+  if(!outliers_found) {
+    break
   }
 }
+
+
+boxplot(vehicle_list_inputs)
   
 summary(vehicle_list_inputs)
 

@@ -7,16 +7,15 @@ vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R
 vehicle_list_inputs = vehicle_list[, -1]
 vehicle_list_inputs = vehicle_list_inputs[, -19]
 
-dat <- ggplot2::mpg
-print(dat$hwy)
-summary(dat$hwy)
+for(i in colnames(vehicle_list_inputs)){
+  outliers = boxplot.stats(vehicle_list_inputs[[i]])$out
+  
+  if(length(outliers) != 0) {
+    out_row = which(vehicle_list_inputs[[i]] %in% c(outliers))
 
-boxplot(dat$hwy,
-  ylab = "hwy"
-)
-
-boxplot.stats(dat$hwy)$out
-boxplot(vehicle_list_inputs)
+    print(vehicle_list_inputs[out_row, ])
+  }
+}
   
 summary(vehicle_list_inputs)
 

@@ -1,6 +1,7 @@
 library("readxl") # readxl package used to import excel files
 library(NbClust)
 library(factoextra)
+library(cluster)
 
 vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R-Machine-Learning-Application---MLCW-IIT\\vehicles.xlsx")
 
@@ -51,6 +52,31 @@ fviz_nbclust(scaled_vehicle_list_inputs, kmeans, method = 'silhouette')
 # Gap Static Algorithm to identify clusters
 fviz_nbclust(scaled_vehicle_list_inputs, kmeans, method = 'gap_stat')
 
-kmean_vehicle_list = kmeans(scaled_vehicle_list_inputs, centers = 3, nstart = 10)
-kmean_vehicle_list
-fviz_cluster(kmean_vehicle_list, data=scaled_vehicle_list_inputs)
+# Calculate WSS, TSS and BSS to identify the optimal cluster
+kmean_vehicle_list_cluster_2 = kmeans(scaled_vehicle_list_inputs, centers = 2)
+kmean_vehicle_list_cluster_3 = kmeans(scaled_vehicle_list_inputs, centers = 3)
+
+wss_cluster_2 = kmean_vehicle_list_cluster_2$tot.withinss
+wss_cluster_3 = kmean_vehicle_list_cluster_3$tot.withinss
+
+tss_cluster_2 = kmean_vehicle_list_cluster_2$totss
+tss_cluster_3 = kmean_vehicle_list_cluster_3$totss
+
+bss_cluster_2 = kmean_vehicle_list_cluster_2$betweenss
+bss_cluster_3 = kmean_vehicle_list_cluster_3$betweenss
+
+bss2_to_tss2_ratio = bss_cluster_2/tss_cluster_2
+bss3_to_tss3_ratio = bss_cluster_3/tss_cluster_3
+
+# When compared to k=2 and k=3, in k=3, BSS is higher and WSS is lower than the k=2. 
+# Additionally k=3 has a higher BSS/TSS ratio. 
+# Then k=3 is the better option.
+
+# Visualize cluster(k=3)
+fviz_cluster(kmean_vehicle_list_cluster_3, data=scaled_vehicle_list_inputs)
+
+# Generate silhouette plot
+silhouette_of_vehicle_list_cluster_2 <- silhouette(kmean_vehicle_list_cluster_2$cluster, dist(scaled_vehicle_list_inputs))
+silhouette_of_vehicle_list_cluster_3 <- silhouette(kmean_vehicle_list_cluster_3$cluster, dist(scaled_vehicle_list_inputs))
+fviz_silhouette(silhouette_of_vehicle_list_cluster_2)
+fviz_silhouette(silhouette_of_vehicle_list_cluster_3)

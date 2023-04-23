@@ -1,8 +1,10 @@
 library("readxl") # readxl package used to import excel files
+library(NbClust)
+library(factoextra)
 
 vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R-Machine-Learning-Application---MLCW-IIT\\vehicles.xlsx")
 
-# Remove 1st and last column and scale the data set
+# Remove 1st and last columns
 vehicle_list_inputs = vehicle_list[, -1]
 vehicle_list_inputs = vehicle_list_inputs[, -19]
 
@@ -27,22 +29,28 @@ while(TRUE) {
   }
 }
 
+# To check whether the all outliers have removed or not
 boxplot(vehicle_list_inputs)
-  
-summary(vehicle_list_inputs)
 
+# Scale the data set
 scaled_vehicle_list_inputs <- scale(vehicle_list_inputs)
 
-scaled_vehicle_list_inputs
-head(scaled_vehicle_list_inputs, 200)
-head(vehicle_list_inputs, 10)
-print(scaled_vehicle_list_inputs)
+# NbClust to identify clusters
+set.seed(26)
+NbClust(scaled_vehicle_list_inputs, distance="euclidean", min.nc=2,max.nc=5,method="kmeans",index="all")
 
-hist(scaled_vehicle_list_inputs)
+# Elbow method to identify clusters
+k = 2:5
+set.seed(42)	
+WSS_of_scaled_vehicle_list_inputs = sapply(k, function(k) {kmeans(scaled_vehicle_list_inputs, centers=k)$tot.withinss})
+plot(k, WSS_of_scaled_vehicle_list_inputs, type="l", xlab= "Number of k", ylab="Within sum of squares")
 
-data <- iris[,1:4]
-dim(data)
-quartiles <- quantile(data$Sepal.Width, probs=c(.25, .75), na.rm = FALSE)
-quartiles
+# Average Silhouette method to identify clusters
+fviz_nbclust(scaled_vehicle_list_inputs, kmeans, method = 'silhouette')
 
-IQR <- IQR(data$Sepal.Width)
+# Gap Static Algorithm to identify clusters
+fviz_nbclust(scaled_vehicle_list_inputs, kmeans, method = 'gap_stat')
+
+kmean_vehicle_list = kmeans(scaled_vehicle_list_inputs, centers = 3, nstart = 10)
+kmean_vehicle_list
+fviz_cluster(kmean_vehicle_list, data=scaled_vehicle_list_inputs)

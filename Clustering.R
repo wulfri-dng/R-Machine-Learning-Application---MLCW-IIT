@@ -1,5 +1,4 @@
 library("readxl") # readxl package used to import excel files
-library("ggplot2")
 
 vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R-Machine-Learning-Application---MLCW-IIT\\vehicles.xlsx")
 
@@ -28,13 +27,11 @@ while(TRUE) {
   }
 }
 
-
 boxplot(vehicle_list_inputs)
   
 summary(vehicle_list_inputs)
 
 scaled_vehicle_list_inputs <- scale(vehicle_list_inputs)
-
 
 scaled_vehicle_list_inputs
 head(scaled_vehicle_list_inputs, 200)

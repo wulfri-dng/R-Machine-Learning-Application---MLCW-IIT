@@ -129,3 +129,4 @@ fviz_cluster(kmean_vehicle_list_transform_cluster_3, data=vehicle_list_inputs_tr
 # Generate silhouette plot
 silhouette_of_transform_vehicle_list_cluster_3 <- silhouette(kmean_vehicle_list_transform_cluster_3$cluster, dist(vehicle_list_inputs_transform))
 fviz_silhouette(silhouette_of_transform_vehicle_list_cluster_3)
+

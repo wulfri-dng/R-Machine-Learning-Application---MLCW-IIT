@@ -7,8 +7,7 @@ library(fpc)
 vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R-Machine-Learning-Application---MLCW-IIT\\vehicles.xlsx")
 
 # Remove 1st and last columns
-vehicle_list_inputs = vehicle_list[, -1]
-vehicle_list_inputs = vehicle_list_inputs[, -19]
+vehicle_list_inputs = vehicle_list[-c(1, 20)]
 
 # Calculate outliers and remove them automatically
 while(TRUE) {

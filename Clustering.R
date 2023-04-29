@@ -2,6 +2,7 @@ library("readxl") # readxl package used to import excel files
 library(NbClust)
 library(factoextra)
 library(cluster)
+library(fpc)
 
 vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R-Machine-Learning-Application---MLCW-IIT\\vehicles.xlsx")
 
@@ -82,13 +83,15 @@ fviz_silhouette(silhouette_of_vehicle_list_cluster_3)
 # 2nd objective
 pca_vehicle_list_inputs = prcomp(vehicle_list_inputs, center = TRUE, scale = TRUE)
 summary(pca_vehicle_list_inputs)
+pca_vehicle_list_inputs$rotation # Get eigenvectors from PCA
+pca_vehicle_list_inputs$sdev # Get eigenvalues from PCA
 
 # Select first 6 PCss which gives cumulative score > 92%. (https://towardsdatascience.com/how-to-select-the-best-number-of-principal-components-for-the-dataset-287e64b14c6d)
 vehicle_list_inputs_transform = as.data.frame(-pca_vehicle_list_inputs$x[, 1:6])
 head(vehicle_list_inputs_transform, 20)
 
 # NbClust to identify clusters (PCA method)
-set.seed(32)
+set.seed(12)
 NbClust(vehicle_list_inputs_transform, distance="euclidean", min.nc=2,max.nc=5,method="kmeans",index="all")
 
 # Elbow method to identify clusters (PCA method)
@@ -130,3 +133,6 @@ fviz_cluster(kmean_vehicle_list_transform_cluster_3, data=vehicle_list_inputs_tr
 silhouette_of_transform_vehicle_list_cluster_3 <- silhouette(kmean_vehicle_list_transform_cluster_3$cluster, dist(vehicle_list_inputs_transform))
 fviz_silhouette(silhouette_of_transform_vehicle_list_cluster_3)
 
+# Calinski-Hrabasz index
+calinhara(vehicle_list_inputs_transform, kmean_vehicle_list_transform_cluster_3$cluster,3)
+calinhara(vehicle_list_inputs_transform, kmean_vehicle_list_transform_cluster_2$cluster,2)

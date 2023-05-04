@@ -6,20 +6,27 @@ library(fpc)
 
 vehicle_list <- read_excel("D:\\Coding Area\\University Projects\\Courseworks\\R-Machine-Learning-Application---MLCW-IIT\\vehicles.xlsx")
 
+# ----------------- Data Pre-processing -----------------
+
 # Remove 1st and last columns
 vehicle_list_inputs = vehicle_list[-c(1, 20)]
+
+boxplot(vehicle_list_inputs)
 
 # Calculate outliers and remove them automatically
 while(TRUE) {
   outliers_found = FALSE
   
   for(i in colnames(vehicle_list_inputs)){
+    # Identify Outliers
     outliers = boxplot.stats(vehicle_list_inputs[[i]])$out
+    print(outliers)
     
     if(length(outliers) != 0) {
       outliers_found = TRUE
       
       for(j in 1:length(outliers)) {
+        # Remove data rows which contain Outliers
         vehicle_list_inputs = subset(vehicle_list_inputs, vehicle_list_inputs[[i]] != outliers[j])
       }
     }
@@ -36,13 +43,15 @@ boxplot(vehicle_list_inputs)
 # Scale the data set
 scaled_vehicle_list_inputs <- scale(vehicle_list_inputs)
 
+# ----------------- Cluster Implementation -----------------
+
 # NbClust to identify clusters
 set.seed(26)
 NbClust(scaled_vehicle_list_inputs, distance="euclidean", min.nc=2,max.nc=5,method="kmeans",index="all")
 
 # Elbow method to identify clusters
-k = 2:5
 set.seed(42)	
+k = 2:5
 WSS_of_scaled_vehicle_list_inputs = sapply(k, function(k) {kmeans(scaled_vehicle_list_inputs, centers=k)$tot.withinss})
 plot(k, WSS_of_scaled_vehicle_list_inputs, type="l", xlab= "Number of k", ylab="Within sum of squares")
 
@@ -72,6 +81,9 @@ bss3_to_tss3_ratio = bss_cluster_3/tss_cluster_3
 # Additionally k=3 has a higher BSS/TSS ratio. 
 # Then we can take k=3 as the best option.
 
+kmean_vehicle_list_cluster_3$centers
+kmean_vehicle_list_cluster_3$cluster
+
 # Visualize cluster(k=3)
 fviz_cluster(kmean_vehicle_list_cluster_3, data=scaled_vehicle_list_inputs)
 
@@ -80,12 +92,17 @@ silhouette_of_vehicle_list_cluster_3 <- silhouette(kmean_vehicle_list_cluster_3$
 fviz_silhouette(silhouette_of_vehicle_list_cluster_3)
 
 # 2nd objective
+# Get PCA data
 pca_vehicle_list_inputs = prcomp(vehicle_list_inputs, center = TRUE, scale = TRUE)
 summary(pca_vehicle_list_inputs)
-pca_vehicle_list_inputs$rotation # Get eigenvectors from PCA
-pca_vehicle_list_inputs$sdev # Get eigenvalues from PCA
 
-# Select first 6 PCss which gives cumulative score > 92%. (https://towardsdatascience.com/how-to-select-the-best-number-of-principal-components-for-the-dataset-287e64b14c6d)
+# Get eigenvectors from PCA
+pca_vehicle_list_inputs$rotation 
+
+# Get eigenvalues from PCA
+pca_vehicle_list_inputs$sdev 
+
+# Select first 6 PCss which gives cumulative score > 92%.
 vehicle_list_inputs_transform = as.data.frame(-pca_vehicle_list_inputs$x[, 1:6])
 head(vehicle_list_inputs_transform, 20)
 
@@ -124,6 +141,9 @@ bss3_to_tss3_transform_ratio = bss_transform_cluster_3/tss_transform_cluster_3
 # When compared to k=2 and k=3, in k=3, BSS is higher and WSS is lower than the k=2. 
 # Additionally k=3 has a higher BSS/TSS ratio. 
 # Then we can take k=3 as the best option.
+
+kmean_vehicle_list_transform_cluster_3$centers
+kmean_vehicle_list_transform_cluster_3$cluster
 
 # Visualize cluster(k=3)
 fviz_cluster(kmean_vehicle_list_transform_cluster_3, data=vehicle_list_inputs_transform)
